@@ -3,7 +3,7 @@ import SaveHandler from './SaveHandler'
 import NumberedLabelGenerator from './NumberedLabelGenerator'
 import { getXrefTargets } from './xrefHelpers'
 
-class AbstractWriter extends AbstractEditor {
+export default class AbstractWriter extends AbstractEditor {
 
   constructor(...args) {
     super(...args)
@@ -54,12 +54,19 @@ class AbstractWriter extends AbstractEditor {
 
   didMount() {
     super.didMount()
-    this.getEditorSession().onUpdate(this._onSessionUpdate, this)
+
+    const state = this.getEditorSession().getState()
+    // TODO: we could implement this as a reducer and introduce an output variable, such as 'highlights'
+    state.observe('selectionInfo', this._onSessionUpdate, this, {
+      stage: 'update'
+    })
   }
 
   dispose() {
     super.dispose()
-    this.getEditorSession().off(this)
+
+    const state = this.getEditorSession().getState()
+    state.off(this)
   }
 
   getChildContext() {
@@ -106,12 +113,11 @@ class AbstractWriter extends AbstractEditor {
     })
   }
 
-  _onSessionUpdate(editorSession) {
-    if (!editorSession.hasChanged('document') && !editorSession.hasChanged('selection')) return
-
-    let sel = editorSession.getSelection()
-    let selectionState = editorSession.getSelectionState()
-    let xrefs = selectionState.getAnnotationsForType('xref')
+  _onSessionUpdate() {
+    let state = this.getEditorSession().getState()
+    let sel = state.get('selection')
+    let selectionInfo = state.get('selectionInfo')
+    let xrefs = selectionInfo.getAnnotationsForType('xref')
     let highlights = {
       'fig': [],
       'bibr': []
@@ -124,5 +130,3 @@ class AbstractWriter extends AbstractEditor {
     this.contentHighlights.set(highlights)
   }
 }
-
-export default AbstractWriter
