@@ -5,6 +5,7 @@
   "main": "dist/texture.cjs.js",
   "jsnext:main": "index.es.js",
   "dependencies": {
+    "fs-extra": "^4.0.2",
     "lodash": "^4.14.1",
     "substance": "1.0.0-preview.10"
   },
