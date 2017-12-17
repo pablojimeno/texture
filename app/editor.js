@@ -1,23 +1,63 @@
-const { Texture } = window.texture
-let remote = require('electron').remote
-let args = remote.getGlobal('sharedObject').args
+import Archive from './archive/Archive.js'
 
-// Loading XML: In this example we use a bundled virtual file-system
-let file = 'data/introducing-texture.xml' // without leading '/'
+const remote = require('electron').remote
+const args = remote.getGlobal('sharedObject').args
+const commandLineArgs = require('command-line-args')
+const path = require('path')
 
-if(args.length > 2) {
-  file = 'data/' + args[2]
+const argv = args.slice(2)
+const optionDefinitions = [
+  { name: 'file', alias: 'f', type: String },
+  { name: 'dir', alias: 'd', type: String },
+]
+const options = commandLineArgs(optionDefinitions, { argv })
+
+/*
+TODO: Archive Iteration 1
+
+- Instead of working on a single file, allow to work on an archive folder.
+
+*/
+
+// if no args are given load the intro
+if (argv.length === 0) {
+  options.file = 'data/introducing-texture.xml'
+}
+
+if (options.file) {
+  let f = options.file
+  if (!path.isAbsolute(f)) {
+    f = path.join(process.cwd(), f)
+  }
+  options.mode = 'file'
+  options.rootDir = path.dirname(f)
+  options.file = path.basename(f)
+} else if (options.dir) {
+  options.mode = 'dir'
 }
 
 window.onload = function() {
+
+  const { platform, substanceGlobals } = window.substance
+  substanceGlobals.DEBUG_RENDERING = Boolean(platform.devtools)
+
+  const { Texture } = window.texture
+
+  let archive = new Archive(options)
+
   window.app = Texture.mount({
-    documentId: file,
+    documentId: options.file,
     /*
       Implement your own logic to read and write XML
     */
     readXML: function(documentId, cb) {
-      let xmlStr = vfs.readFileSync(documentId)
-      cb(null, xmlStr)
+      archive.readFileAsString(documentId)
+        .then((content) => {
+          cb(null, content)
+        })
+        .catch((err) => {
+          cb(err)
+        })
     },
     writeXML: function(documentId, xml, cb) {
       console.log('writeXML needs to be implemented for saving.')
@@ -25,4 +65,5 @@ window.onload = function() {
       cb(null)
     }
   }, document.body)
+
 }

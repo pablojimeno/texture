@@ -9,11 +9,12 @@
     "substance": "1.0.0-preview.14"
   },
   "devDependencies": {
+    "command-line-args": "^4.0.7",
     "electron": "^1.7.9",
+    "eslint": "^3.17.1",
     "font-awesome": "4.5.0",
     "substance-bundler": "0.19.1",
-    "substance-test": "^0.9.4",
-    "eslint": "^3.17.1"
+    "substance-test": "^0.9.4"
   },
   "scripts": {
     "prepublish": "node make publish",
