@@ -1,23 +1,18 @@
-import Archive from './archive/Archive.js'
-
 const remote = require('electron').remote
 const args = remote.getGlobal('sharedObject').args
 const commandLineArgs = require('command-line-args')
 const path = require('path')
 
+const ArchiveSession = require('../../archive/ArchiveSession')
+const FsArchive = require('../../archive/FsArchive')
+
 const argv = args.slice(2)
 const optionDefinitions = [
+  { name: 'init', alias: 'i', type: Boolean },
   { name: 'file', alias: 'f', type: String },
   { name: 'dir', alias: 'd', type: String },
 ]
 const options = commandLineArgs(optionDefinitions, { argv })
-
-/*
-TODO: Archive Iteration 1
-
-- Instead of working on a single file, allow to work on an archive folder.
-
-*/
 
 // if no args are given load the intro
 if (argv.length === 0) {
@@ -30,40 +25,34 @@ if (options.file) {
     f = path.join(process.cwd(), f)
   }
   options.mode = 'file'
-  options.rootDir = path.dirname(f)
+  options.dir = path.dirname(f)
   options.file = path.basename(f)
 } else if (options.dir) {
   options.mode = 'dir'
 }
 
 window.onload = function() {
-
   const { platform, substanceGlobals } = window.substance
-  substanceGlobals.DEBUG_RENDERING = Boolean(platform.devtools)
-
   const { Texture } = window.texture
 
-  let archive = new Archive(options)
+  platform._reset()
+  substanceGlobals.DEBUG_RENDERING = Boolean(platform.devtools)
+  console.log('DEBUG_RENDERING?', substanceGlobals.DEBUG_RENDERING)
 
-  window.app = Texture.mount({
-    documentId: options.file,
-    /*
-      Implement your own logic to read and write XML
-    */
-    readXML: function(documentId, cb) {
-      archive.readFileAsString(documentId)
-        .then((content) => {
-          cb(null, content)
-        })
-        .catch((err) => {
-          cb(err)
-        })
-    },
-    writeXML: function(documentId, xml, cb) {
-      console.log('writeXML needs to be implemented for saving.')
-      console.log('XML', xml)
-      cb(null)
-    }
-  }, document.body)
-
+  let p = Promise.resolve()
+  let archive = new FsArchive(options.dir)
+  let session
+  if (options.init) {
+    p = archive.init()
+  } else {
+    p = archive.load()
+  }
+  p.then(() => {
+    return ArchiveSession.create(archive)
+  }).then((_session) => {
+    session = _session
+    // window.app = Texture.mount({
+    //   session
+    // }, document.body)
+  })
 }

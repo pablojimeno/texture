@@ -6,8 +6,8 @@ a JATS file, assets.
 The considered use-case:
 1. Read a JATS file from a folder with a specific layout
 2. Import the JATS file initializing the archive.
-3. Edit the document iteratively persisted on disk.
-4. Create versions where the user can enter a 'commit' message
+3. Edit the document iteratively and persist on disk.
+4. Create versions where the user can enter a 'commit' message.
 
 The goal is to move towards a workable Texture version that allows development cycles on topics such as import, export, and versioning.
 
@@ -17,9 +17,8 @@ The goal is to move towards a workable Texture version that allows development c
 - Record changes and combine them into one stream (~pull request)
 - Persist the stream of changes on the fly (~buffer)
 - When reopened the document should be loaded from the buffer
-  - Invariant: archive = snapshot (=work tree) + changes
-  - If the working copy is empty, it is initialized
-    using a template
+  - Invariant: archive = snapshot + changes
+  - If the working copy is empty, it is initialized using a template
 
 # Iteration 2
 

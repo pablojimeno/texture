@@ -75,7 +75,7 @@ b.task('build:lib', ['compile:schema'], () => {
   _buildLib(DIST, 'all')
 })
 
-b.task('build:app', ['build:browser'], () => {
+b.task('build:app', ['assets', 'build:browser'], () => {
   b.copy('app/index.html', 'dist/app/')
   b.copy('app/main.js', 'dist/app/')
   b.copy('app/package.json.in', 'dist/app/package.json')

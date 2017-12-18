@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE manifest PUBLIC "Reproducible Document Container 1.0" "RDC.dtd">
+<manifest>
+  <resources>
+    <document schema="JATS4M 1.1">doc.xml</document>
+    <document schema="Publications 1.0">publications.json</document>
+    <files folder="assets"></files>
+  </resources>
+</manifest>
